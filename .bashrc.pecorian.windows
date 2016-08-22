@@ -34,7 +34,8 @@ pecorian() {
     local target=""
     case $scope in
         $scope_current_dir)
-            target="$( \ls -aF | peco )" # エイリアスを外して、ディレクトリは/をつけて表示(Fオプション)
+	    # カレントディレクトリ[.]と親ディレクトリ[..]を表示しない(Aオプション)
+            target="$( \ls -AF | peco )" # エイリアスを外して、ディレクトリは/をつけて表示(Fオプション)
             ;;
 	$scope_current_dir_up3)
 	    # findは難しい、http://takuya-1st.hatenablog.jp/entry/20110918/1316338219
@@ -68,7 +69,7 @@ pecorian() {
             target="$( ghq list | peco )"
             ;;
         *) # 上記以外
-            target="$( \ls -F | peco )" # エイリアスを外して、ディレクトリは/をつけて表示
+            target="$( \ls -AF | peco )" # エイリアスを外して、ディレクトリは/をつけて表示
     esac
 
     # 3) select action
