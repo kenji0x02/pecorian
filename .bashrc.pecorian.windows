@@ -7,8 +7,6 @@ pecorian() {
 
     # 1) select scope 
     local scope_current_dir="Current dir"
-    local scope_current_dir_up3="Current dir up depth -3"
-    local scope_current_dir_up2="Current dir up depth -2"
     local scope_current_dir_below2="Current dir below depth 2"
     local scope_current_dir_below3="Current dir below depth 3"
     local scope_current_dir_below_all="Current dir below depth all"
@@ -18,8 +16,6 @@ pecorian() {
 
     local scope_list=()
     scope_list=(${scope_list[@]} $scope_current_dir)
-    scope_list=(${scope_list[@]} $scope_current_dir_up3)
-    scope_list=(${scope_list[@]} $scope_current_dir_up2)
     scope_list=(${scope_list[@]} $scope_current_dir_below2)
     scope_list=(${scope_list[@]} $scope_current_dir_below3)
     scope_list=(${scope_list[@]} $scope_current_dir_below_all)
@@ -36,17 +32,6 @@ pecorian() {
         $scope_current_dir)
 	    # カレントディレクトリ[.]と親ディレクトリ[..]を表示しない(Aオプション)
             target="$( \ls -AF | peco )" # エイリアスを外して、ディレクトリは/をつけて表示(Fオプション)
-            ;;
-	$scope_current_dir_up3)
-	    # findは難しい、http://takuya-1st.hatenablog.jp/entry/20110918/1316338219
-	    # 自分自身のリストはlsで表示されるので不要
-	    local current_dir="$(basename `pwd`)"
-            target="$( find ../../ -maxdepth 3 -type d -name '.git' -prune -o -type d -name $current_dir -prune -o -print | peco )"
-            ;;
-	$scope_current_dir_up2)
-	    # findは難しい、http://takuya-1st.hatenablog.jp/entry/20110918/1316338219
-	    local current_dir="$(basename `pwd`)"
-            target="$( find ../ -maxdepth 2 -type d -name '.git' -prune -o -type d -name $current_dir -prune -o -print | peco )"
             ;;
 	$scope_current_dir_below2)
 	    # findは難しい、http://takuya-1st.hatenablog.jp/entry/20110918/1316338219
@@ -89,7 +74,8 @@ pecorian() {
         action_list=(${action_list[@]} "cd")
         action_list=(${action_list[@]} "open with browser")
     else
-        local action_list=(vi mv rm cp ls cat less open)
+        # ディレクトリじゃないときのコマンドリスト
+        local action_list=(open vi mv rm cp ls cat less) # openコマンドは自前で実装
     fi
 
     local action="$(for e in ${action_list[@]}; do echo $e; done | peco)"
