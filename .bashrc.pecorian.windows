@@ -13,6 +13,7 @@ pecorian() {
     local scope_favorite="Favorite"
     local scope_recent="Recently used"
     local scope_git_rep="Git repository(ghq)"
+    local scope_process="Process"
 
     local scope_list=()
     scope_list=(${scope_list[@]} $scope_current_dir)
@@ -22,6 +23,7 @@ pecorian() {
     scope_list=(${scope_list[@]} $scope_favorite)
     scope_list=(${scope_list[@]} $scope_recent)
     scope_list=(${scope_list[@]} $scope_git_rep)
+    scope_list=(${scope_list[@]} $scope_process)
     
     local scope="$( for s in ${scope_list[@]}; do echo $s; done | peco )"
 
@@ -53,6 +55,9 @@ pecorian() {
 	$scope_git_rep)
             target="$( ghq list | peco )"
             ;;
+	$scope_process)
+            target="$( tasklist | peco | awk '{print $2}')"
+            ;;
         *) # 上記以外
             target="$( \ls -AF | peco )" # エイリアスを外して、ディレクトリは/をつけて表示
     esac
@@ -73,6 +78,9 @@ pecorian() {
     elif [ $scope = $scope_git_rep ]; then
         action_list=(${action_list[@]} "cd")
         action_list=(${action_list[@]} "open with browser")
+    elif [ $scope = $scope_process ]; then
+        action_list=(${action_list[@]} "kill")
+        action_list=(${action_list[@]} "show detail")
     else
         # ディレクトリじゃないときのコマンドリスト
         local action_list=(open vi mv rm cp ls cat less) # openコマンドは自前で実装
@@ -89,6 +97,13 @@ pecorian() {
 	    target="$( echo $target | cut -d "/" -f 2,3 )"
 	    action="hub browse"
         fi
+    elif [ $scope = $scope_process ]; then
+        if [ $action = "kill" ]; then
+	    local action="taskkill -f -pid"
+        elif [ $action = "show detail" ]; then
+	    local action="wmic process where ProcessID=${target} get Name,ProcessId,CommandLine /format:list"
+	    target=""
+	fi
     fi
 
     # 4) select option target
