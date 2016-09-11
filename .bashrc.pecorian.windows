@@ -25,7 +25,7 @@ pecorian() {
     scope_list=(${scope_list[@]} $scope_git_rep)
     scope_list=(${scope_list[@]} $scope_process)
     
-    local scope="$( for s in ${scope_list[@]}; do echo $s; done | peco )"
+    local scope="$( for s in ${scope_list[@]}; do echo $s; done | peco --prompt="scope >")"
 
     # 2) select target
     # todo: 新規作成のフロー新規作成ファイル名を指定？？
@@ -33,7 +33,7 @@ pecorian() {
     case $scope in
         $scope_current_dir)
 	    # カレントディレクトリ[.]と親ディレクトリ[..]を表示しない(Aオプション)
-            target="$( \ls -AF | peco )" # エイリアスを外して、ディレクトリは/をつけて表示(Fオプション)
+            target="$( \ls -AF --group-directories-first | peco )" # エイリアスを外して、ディレクトリは/をつけて表示(Fオプション)
             ;;
 	$scope_current_dir_below2)
 	    # findは難しい、http://takuya-1st.hatenablog.jp/entry/20110918/1316338219
@@ -59,7 +59,7 @@ pecorian() {
             target="$( tasklist | peco | awk '{print $2}')"
             ;;
         *) # 上記以外
-            target="$( \ls -AF | peco )" # エイリアスを外して、ディレクトリは/をつけて表示
+            target="$( \ls -AF --group-directories-first | peco )" # エイリアスを外して、ディレクトリは/をつけて表示
     esac
 
     # 3) select action
