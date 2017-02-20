@@ -14,6 +14,7 @@ pecorian() {
     local scope_recent="Recently used"
     local scope_git_rep="Git repository(ghq)"
     local scope_process="Process"
+    local scope_path="Path"
 
     local scope_list=()
     scope_list=(${scope_list[@]} $scope_current_dir)
@@ -24,6 +25,7 @@ pecorian() {
     scope_list=(${scope_list[@]} $scope_recent)
     scope_list=(${scope_list[@]} $scope_git_rep)
     scope_list=(${scope_list[@]} $scope_process)
+    scope_list=(${scope_list[@]} $scope_path)
     
     local scope="$( for s in ${scope_list[@]}; do echo $s; done | peco --prompt="scope >")"
 
@@ -58,6 +60,9 @@ pecorian() {
 	$scope_process)
             target="$( tasklist | peco | awk '{print $2}')"
             ;;
+	$scope_path)
+            target="$( echo $PATH | tr ':' '\n' | peco --prompt="PATH >")"
+            ;;
         *) # 上記以外
             target="$( \ls -AF --group-directories-first | peco )" # エイリアスを外して、ディレクトリは/をつけて表示
     esac
@@ -68,6 +73,7 @@ pecorian() {
     local eval_target="$(eval "echo $target")"
     if [ -d $eval_target ]; then
         action_list=(${action_list[@]} "cd")
+        action_list=(${action_list[@]} "ls -al")
         action_list=(${action_list[@]} "rm -rf")
         action_list=(${action_list[@]} "mv")
         action_list=(${action_list[@]} "cp")
