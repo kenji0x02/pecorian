@@ -15,6 +15,7 @@ pecorian() {
     local scope_git_rep="Git repository(ghq)"
     local scope_process="Process"
     local scope_path="Path"
+    local scope_trush="Trush"
 
     local scope_list=()
     scope_list=(${scope_list[@]} $scope_current_dir)
@@ -26,6 +27,7 @@ pecorian() {
     scope_list=(${scope_list[@]} $scope_git_rep)
     scope_list=(${scope_list[@]} $scope_process)
     scope_list=(${scope_list[@]} $scope_path)
+    scope_list=(${scope_list[@]} $scope_trush)
     
     local scope="$( for s in ${scope_list[@]}; do echo $s; done | peco --prompt="scope >")"
 
@@ -63,6 +65,9 @@ pecorian() {
 	$scope_path)
             target="$( echo $PATH | tr ':' '\n' | peco --prompt="PATH >")"
             ;;
+	$scope_trush)
+            target=""
+            ;;
         *) # 上記以外
             target="$( \ls -AF --group-directories-first | peco )" # エイリアスを外して、ディレクトリは/をつけて表示
     esac
@@ -71,7 +76,16 @@ pecorian() {
     local action_list=()
     # todo: ドットファイルがディレクトリとして認識される
     local eval_target="$(eval "echo $target")"
-    if [ -d $eval_target ]; then
+    if [ $scope = $scope_git_rep ]; then
+        action_list=(${action_list[@]} "cd")
+        action_list=(${action_list[@]} "open with browser")
+    elif [ $scope = $scope_process ]; then
+        action_list=(${action_list[@]} "kill")
+        action_list=(${action_list[@]} "show detail")
+    elif [ $scope = $scope_trush ]; then
+        action_list=(${action_list[@]} "remove")
+        action_list=(${action_list[@]} "open with explorer")
+    elif [ -d $eval_target ]; then
         action_list=(${action_list[@]} "cd")
         action_list=(${action_list[@]} "ls -al")
         action_list=(${action_list[@]} "rm -rf")
@@ -81,12 +95,6 @@ pecorian() {
 	if [[ "$target" =~ " " ]]; then
 	    target="\"${target}\""
 	fi
-    elif [ $scope = $scope_git_rep ]; then
-        action_list=(${action_list[@]} "cd")
-        action_list=(${action_list[@]} "open with browser")
-    elif [ $scope = $scope_process ]; then
-        action_list=(${action_list[@]} "kill")
-        action_list=(${action_list[@]} "show detail")
     else
         # ディレクトリじゃないときのコマンドリスト
         local action_list=(open vi mv rm cp ls cat less) # openコマンドは自前で実装
@@ -109,6 +117,13 @@ pecorian() {
         elif [ $action = "show detail" ]; then
 	    local action="wmic process where ProcessID=${target} get Name,ProcessId,CommandLine /format:list"
 	    target=""
+	fi
+    elif [ $scope = $scope_trush ]; then
+        if [ $action = "remove" ]; then
+	    local action='rm -R /c/\$Recycle.Bin/ 2>/dev/null'
+        elif [ $action = "open with explorer" ]; then
+	    # shellコマンドで特殊フォルダをエクスプローラーで開く
+	    local action="explorer shell:RecycleBinFolder"
 	fi
     fi
 
