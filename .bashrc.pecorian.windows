@@ -37,39 +37,39 @@ pecorian() {
     case $scope in
         $scope_current_dir)
 	    # カレントディレクトリ[.]と親ディレクトリ[..]を表示しない(Aオプション)
-            target="$( \ls -AF --group-directories-first | peco )" # エイリアスを外して、ディレクトリは/をつけて表示(Fオプション)
+            target="$( \ls -AF --group-directories-first | peco --prompt="target >")" # エイリアスを外して、ディレクトリは/をつけて表示(Fオプション)
             ;;
 	$scope_current_dir_below2)
 	    # findは難しい、http://takuya-1st.hatenablog.jp/entry/20110918/1316338219
-            target="$( find . -maxdepth 2 -type d -name '.git' -prune -o -print | peco )"
+            target="$( find . -maxdepth 2 -type d -name '.git' -prune -o -print | peco --prompt="target >")"
             ;;
 	$scope_current_dir_below3)
-            target="$( find . -maxdepth 3 -type d -name '.git' -prune -o -print | peco )"
+            target="$( find . -maxdepth 3 -type d -name '.git' -prune -o -print | peco --prompt="target >")"
             ;;
 	$scope_current_dir_below_all)
-            target="$( find . -type d -name '.git' -prune -o -print | peco )"
+            target="$( find . -type d -name '.git' -prune -o -print | peco --prompt="target >")"
             ;;
 	$scope_favorite)
-            target="$( cat ~/.dir_favorite | head -n $((LINES - 3)) | peco )"
+            target="$( cat ~/.dir_favorite | head -n $((LINES - 3)) | peco --prompt="target >")"
             ;;
 	$scope_recent)
 	    # とりあえず1行捨てるバージョンで表示
-            target="$( tac ~/.dir_history | sed '1d' | awk '!a[$0]++' | head -n $((LINES - 3)) | peco )"
+            target="$( tac ~/.dir_history | sed '1d' | awk '!a[$0]++' | head -n $((LINES - 3)) | peco --prompt="target >")"
             ;;
 	$scope_git_rep)
-            target="$( ghq list | peco )"
+            target="$( ghq list | peco --prompt="target >")"
             ;;
 	$scope_process)
-            target="$( tasklist | peco | awk '{print $2}')"
+            target="$( tasklist | peco --prompt="target >"| awk '{print $2}')"
             ;;
 	$scope_path)
-            target="$( echo $PATH | tr ':' '\n' | peco --prompt="PATH >")"
+            target="$( echo $PATH | tr ':' '\n' | peco --prompt="target >")"
             ;;
 	$scope_trush)
             target=""
             ;;
         *) # 上記以外
-            target="$( \ls -AF --group-directories-first | peco )" # エイリアスを外して、ディレクトリは/をつけて表示
+            target="$( \ls -AF --group-directories-first | peco --prompt="target >")" # エイリアスを外して、ディレクトリは/をつけて表示
     esac
 
     # 3) select action
@@ -100,7 +100,7 @@ pecorian() {
         local action_list=(open vi mv rm cp ls cat less) # openコマンドは自前で実装
     fi
 
-    local action="$(for e in ${action_list[@]}; do echo $e; done | peco)"
+    local action="$(for e in ${action_list[@]}; do echo $e; done | peco --prompt="action >")"
 
     if [ $scope = $scope_git_rep ]; then
         if [ $action = "cd" ]; then
