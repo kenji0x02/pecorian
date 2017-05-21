@@ -34,6 +34,7 @@ pecorian() {
     # 2) select target
     # todo: 新規作成のフロー新規作成ファイル名を指定？？
     local target=""
+    local post_command=""
     case $scope in
         $scope_current_dir)
 	    # カレントディレクトリ[.]と親ディレクトリ[..]を表示しない(Aオプション)
@@ -77,6 +78,7 @@ pecorian() {
     # todo: ドットファイルがディレクトリとして認識される
     local eval_target="$(eval "echo $target")"
     if [ $scope = $scope_git_rep ]; then
+        action_list=(${action_list[@]} "cd && open with explorer")
         action_list=(${action_list[@]} "cd")
         action_list=(${action_list[@]} "open with browser")
     elif [ $scope = $scope_process ]; then
@@ -103,7 +105,12 @@ pecorian() {
     local action="$(for e in ${action_list[@]}; do echo $e; done | peco --prompt="action >")"
 
     if [ $scope = $scope_git_rep ]; then
-        if [ $action = "cd" ]; then
+        if [ $action = "cd && open with explorer" ]; then
+	    local ghq_root="$( cygpath `ghq root` )" # スラッシュ表記に変更
+	    target=${ghq_root}/${target}
+	    action="cd"
+	    post_command="&& explorer ."
+        elif [ $action = "cd" ]; then
 	    local ghq_root="$( cygpath `ghq root` )" # スラッシュ表記に変更
 	    target=${ghq_root}/${target}
 	elif [ $action = "open with browser" ]; then
@@ -130,7 +137,7 @@ pecorian() {
     # 4) select option target
 
     # 5) finalize
-    local cmd="${action} ${target}"
+    local cmd="${action} ${target} ${post_command}"
     IFS=$IFS_BACKUP
     READLINE_LINE="$cmd"
     READLINE_POINT=${#cmd}
