@@ -1,0 +1,8 @@
+# load pecorian via go get 
+if [ -e $GOPATH/src/github.com/kenji0x02/pecorian/pecorian.sh ]; then
+    source $GOPATH/src/github.com/kenji0x02/pecorian/pecorian.sh
+fi
+
+zle -N pecorian
+bindkey '\C-j' pecorian
+
