@@ -16,7 +16,8 @@ pecorian() {
     local scope_path="Path"
     local scope_trush="Trush"
 
-    local scope_list=()
+    local scope_list
+    scope_list=()
     scope_list=(${scope_list[@]} $scope_current_dir)
     scope_list=(${scope_list[@]} $scope_current_dir_below2)
     scope_list=(${scope_list[@]} $scope_current_dir_below3)
@@ -73,7 +74,8 @@ pecorian() {
     esac
 
     # 3) select action
-    local action_list=()
+    local action_list
+    action_list=()
     # todo: ドットファイルがディレクトリとして認識される
     local eval_target="$(eval "echo $target")"
     if [ $scope = $scope_git_rep ]; then
