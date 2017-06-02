@@ -61,7 +61,11 @@ pecorian() {
             target="$( ghq list | peco --prompt="target >")"
             ;;
 	$scope_process)
-            target="$( tasklist | peco --prompt="target >"| awk '{print $2}')"
+            if [ "$COMSPEC" != "" ]; then
+              target="$( tasklist | peco --prompt="target >"| awk '{print $2}')"
+            else
+              target="$( ps aux | peco --prompt="target >"| awk '{print $2}')"
+            fi
             ;;
 	$scope_path)
             target="$( echo $PATH | tr ':' '\n' | peco --prompt="target >")"
@@ -82,8 +86,7 @@ pecorian() {
         action_list=(${action_list[@]} "cd && open with explorer")
         action_list=(${action_list[@]} "cd")
         action_list=(${action_list[@]} "open with browser")
-    elif [ $scope = $scope_process ]; then
-        action_list=(${action_list[@]} "kill")
+    elif [ $scope = $scope_process ]; then action_list=(${action_list[@]} "kill")
         action_list=(${action_list[@]} "show detail")
     elif [ $scope = $scope_trush ]; then
         action_list=(${action_list[@]} "remove")
@@ -132,9 +135,17 @@ pecorian() {
         fi
     elif [ $scope = $scope_process ]; then
         if [ $action = "kill" ]; then
-	    local action="taskkill -f -pid"
+            if [ "$COMSPEC" != "" ]; then
+              local action="taskkill -f -pid"
+            else
+              local action="kill"
+            fi
         elif [ $action = "show detail" ]; then
-	    local action="wmic process where ProcessID=${target} get Name,ProcessId,CommandLine /format:list"
+            if [ "$COMSPEC" != "" ]; then
+              local action="wmic process where ProcessID=${target} get Name,ProcessId,CommandLine /format:list"
+            else
+              local action="sudo ls -al /proc/${target}"
+            fi
 	    target=""
 	fi
     elif [ $scope = $scope_trush ]; then
