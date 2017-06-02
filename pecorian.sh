@@ -144,7 +144,7 @@ pecorian() {
             if [ "$COMSPEC" != "" ]; then
               local action="wmic process where ProcessID=${target} get Name,ProcessId,CommandLine /format:list"
             else
-              local action="sudo ls -al /proc/${target}"
+              local action="sudo ls --color -al /proc/${target}"
             fi
 	    target=""
 	fi
