@@ -27,7 +27,9 @@ pecorian() {
     scope_list=(${scope_list[@]} $scope_git_rep)
     scope_list=(${scope_list[@]} $scope_process)
     scope_list=(${scope_list[@]} $scope_path)
-    scope_list=(${scope_list[@]} $scope_trush)
+    if [ "$COMSPEC" != "" ] || [ `uname` = "Darwin" ]; then # WindowまたはMacでのみ表示
+      scope_list=(${scope_list[@]} $scope_trush)
+    fi
     
     local scope="$( for s in ${scope_list[@]}; do echo $s; done | peco --prompt="scope >")"
 
@@ -150,11 +152,19 @@ pecorian() {
 	fi
     elif [ $scope = $scope_trush ]; then
         if [ $action = "remove" ]; then
-	    local action='rm -R /c/\$Recycle.Bin/ 2>/dev/null'
+            if [ "$COMSPEC" != "" ]; then
+                local action='rm -R /c/\$Recycle.Bin/ 2>/dev/null'
+            elif
+                local action='rm -rf ~/.Trash/'
+            if
         elif [ $action = "open with explorer" ]; then
-	    # shellコマンドで特殊フォルダをエクスプローラーで開く
-	    local action="explorer shell:RecycleBinFolder"
-	fi
+            if [ "$COMSPEC" != "" ]; then
+                # shellコマンドで特殊フォルダをエクスプローラーで開く
+                local action="explorer shell:RecycleBinFolder"
+            else
+                local action="open ~/.Trash/"
+            fi
+        fi
     fi
 
     # 4) select option target
