@@ -1,0 +1,40 @@
+# load pecorian via go get 
+if [ -e $GOPATH/src/github.com/kenji0x02/pecorian/pecorian.sh ]; then
+  source $GOPATH/src/github.com/kenji0x02/pecorian/pecorian.sh
+fi
+
+pecorian() {
+  local cmd=`pecorian_cmd`
+  READLINE_LINE="$cmd"
+  READLINE_POINT=${#cmd}
+}
+bind -x '"\C-j": pecorian'
+
+# pecoで履歴検索
+peco_select_history() {
+  local l=$(HISTTIMEFORMAT= history | tac | sed -e 's/^\s*[0-9]\+\s\+//' | peco --query "$READLINE_LINE")
+  READLINE_LINE="$l"
+  READLINE_POINT=${#l}
+}
+bind -x '"\C-r": peco_select_history'
+
+# cdペコ
+_peco_cd_by_history_log() {
+  # カレントディレクトリと、ログライフの最終行が一致するときは最終行を表示しない(=初回起動時のみ表示)
+  # todo: 場合分けせずに.dir_historyからカレントディレクトリを削除したものをpecoの対象にすればいいだけ
+  if [[ `pwd` =  `tail -1 ~/.dir_history` ]] ; then
+    # テキストの最後の行だけ削除したい(sed '$d'):http://qiita.com/richmikan@github/items/4317efffdfd57dc24cf7
+    # ソートしないで重行削除する(awk '!a[$0]++')
+    # http://qiita.com/arcizan/items/9cf19cd982fa65f87546
+    local dir="$( tac ~/.dir_history | sed '1d' | awk '!a[$0]++' | head -n $((LINES - 3)) | peco )"
+  else
+    local dir="$( tac ~/.dir_history | awk '!a[$0]++' | head -n $((LINES - 3)) | peco )"
+  fi
+  if [ ! -z "$dir" ] ; then
+    # ここではcdしない。表示後にエンターして明示的に移動。その方が履歴にも残るし。
+    local l="cd $dir"
+    READLINE_LINE="$l"
+    READLINE_POINT=${#l}
+  fi
+}
+bind -x '"\C-h": _peco_cd_by_history_log'

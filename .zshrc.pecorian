@@ -3,6 +3,39 @@ if [ -e $GOPATH/src/github.com/kenji0x02/pecorian/pecorian.sh ]; then
     source $GOPATH/src/github.com/kenji0x02/pecorian/pecorian.sh
 fi
 
+pecorian() {
+  local cmd=`pecorian_cmd`
+  BUFFER="$cmd"
+  CURSOR=${#BUFFER}
+}
 zle -N pecorian
 bindkey '\C-j' pecorian
 
+# pecoで履歴検索
+function peco-select-history() {
+    local tac
+    if which tac > /dev/null; then
+        tac="tac"
+    else
+        tac="tail -r"
+    fi
+    BUFFER=$(\history -n 1 | \
+        eval $tac | \
+        peco --query "$LBUFFER")
+    CURSOR=$#BUFFER
+    zle clear-screen
+}
+zle -N peco-select-history
+bindkey '^r' peco-select-history
+
+# pecoとcdrでディレクトリ移動
+function peco-cd-by-cdr () {
+    local selected_dir=$(cdr -l | awk '{ print $2 }' | peco)
+    if [ -n "$selected_dir" ]; then
+        BUFFER="cd ${selected_dir}"
+        zle accept-line
+    fi
+    zle clear-screen
+}
+zle -N peco-cdr
+bindkey '^h' peco-cd-by-cdr

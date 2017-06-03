@@ -1,5 +1,5 @@
 
-pecorian() {
+pecorian_cmd() {
   # 配列に半角スペースを許す
   IFS_BACKUP=$IFS
   IFS=$'\n'
@@ -174,16 +174,10 @@ pecorian() {
     fi
   fi
 
-  # 4) create command
-  local cmd="${action} ${target} ${post_command}"
+  # 4) return command
+  echo "${action} ${target} ${post_command}"
   IFS=$IFS_BACKUP
 
-  if [ "$COMSPEC" != "" ]; then
-    READLINE_LINE="$cmd"
-    READLINE_POINT=${#cmd}
-  else
-    BUFFER="$cmd"
-    CURSOR=${#BUFFER}
-  fi
+  return
 }
 
