@@ -85,6 +85,7 @@ pecorian_cmd() {
       target=""
       ;;
     $scope_docker_container)
+      # 空白カラムが存在するケースがあるのでNAMES属性はとれない
       target="$( docker ps -a | tail -n +2 | peco --prompt="target >" | cut -d" " -f1 )"
       ;;
     $scope_docker)
@@ -116,6 +117,7 @@ pecorian_cmd() {
     action_list=(${action_list[@]} "remove")
     action_list=(${action_list[@]} "open with explorer")
   elif [ $scope = $scope_docker_container ]; then
+    # todo: 停止しているコンテナに対してのみ表示
     action_list=(${action_list[@]} "start")
     action_list=(${action_list[@]} "stop")
     action_list=(${action_list[@]} "log")
@@ -203,7 +205,7 @@ pecorian_cmd() {
     elif [ $action = "stop" ]; then
       local action="docker stop"
     elif [ $action = "log" ]; then
-      local action="docker logs"
+      local action="docker logs -tf" # -t:時間も表示, -f(--folow):ログを出力し続ける
     elif [ $action = "exec (run a new command in a running container)" ]; then
       local action="docker exec -it" # -i:interactive, -t:tty
       post_command="ps -aux" # 例)プロセスを表示
