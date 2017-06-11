@@ -92,8 +92,8 @@ pecorian_cmd() {
   # todo: ドットファイルがディレクトリとして認識される
   local eval_target="$(eval "echo $target")"
   if [ $scope = $scope_git_rep ]; then
-    action_list=(${action_list[@]} "cd && open with explorer")
     action_list=(${action_list[@]} "cd")
+    action_list=(${action_list[@]} "cd && open with explorer")
     action_list=(${action_list[@]} "open with browser")
   elif [ $scope = $scope_process ]; then action_list=(${action_list[@]} "kill")
     action_list=(${action_list[@]} "show detail")
