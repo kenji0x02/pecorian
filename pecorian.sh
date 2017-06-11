@@ -82,6 +82,16 @@ pecorian_cmd() {
     $scope_trush)
       target=""
       ;;
+    $scope_docker)
+      local docker_targets_list
+      docker_targets_list=()
+      docker_targets_list=(${docker_targets_list[@]} "containers stopped")
+      docker_targets_list=(${docker_targets_list[@]} "containers all")
+      docker_targets_list=(${docker_targets_list[@]} "images that is not used in all containers")
+      docker_targets_list=(${docker_targets_list[@]} "images that is not tagged (i.e. <none>:<none>)")
+      scope_list=(${scope_list[@]} $scope_current_dir)
+      target="$( for s in ${docker_targets_list[@]}; do echo $s; done | peco --prompt="target >")"
+      ;;
     *) # 上記以外
       target="$( \ls -AF --group-directories-first | peco --prompt="target >")" # エイリアスを外して、ディレクトリは/をつけて表示
   esac
@@ -100,6 +110,8 @@ pecorian_cmd() {
   elif [ $scope = $scope_trush ]; then
     action_list=(${action_list[@]} "remove")
     action_list=(${action_list[@]} "open with explorer")
+  elif [ $scope = $scope_docker ]; then
+    action_list=(${action_list[@]} "remove")
   elif [ -d $eval_target ]; then
     action_list=(${action_list[@]} "cd")
     action_list=(${action_list[@]} "ls -al")
@@ -171,6 +183,20 @@ pecorian_cmd() {
       else
         local action="open ~/.Trash/"
       fi
+    fi
+  elif [ $scope = $scope_docker ]; then
+    if [ $action = "remove" ]; then
+      if [ $target = "containers stopped" ]; then
+        local action="docker container prune" #prune: 刈り込む
+      elif [ $target = "containers all" ]; then
+        local action='docker rm -f $(docker ps -aq)'
+      elif [ $target = "images that is not used in all containers" ]; then
+        local action="docker images prune" #prune: 刈り込む
+      elif [ $target = "images that is not tagged (i.e. <none>:<none>)" ]; then
+        local action='docker rmi $(docker images -aqf 'dangling=true')' #danling: ぶら下がる
+      else
+      fi
+      target=""
     fi
   fi
 
