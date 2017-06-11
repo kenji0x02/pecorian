@@ -37,5 +37,5 @@ function peco-cd-by-cdr () {
     fi
     zle clear-screen
 }
-zle -N peco-cdr
+zle -N peco-cd-by-cdr
 bindkey '^h' peco-cd-by-cdr
