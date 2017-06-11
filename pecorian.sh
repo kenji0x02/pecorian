@@ -15,7 +15,8 @@ pecorian_cmd() {
   local scope_process="Process"
   local scope_path="Path"
   local scope_trush="Trush"
-  local scope_docker="Docker"
+  local scope_docker_container="Docker a container"
+  local scope_docker="Docker containers/images"
 
   local scope_list
   scope_list=()
@@ -35,6 +36,7 @@ pecorian_cmd() {
   # whichコマンドで探すよりも組込みコマンドのtypeの方が速いらしい
   # http://qiita.com/kawaz/items/1b61ee2dd4d1acc7cc94
   if type "docker" > /dev/null 2>&1; then
+    scope_list=(${scope_list[@]} $scope_docker_container)
     scope_list=(${scope_list[@]} $scope_docker)
   fi
 
@@ -82,6 +84,9 @@ pecorian_cmd() {
     $scope_trush)
       target=""
       ;;
+    $scope_docker_container)
+      target="$( docker ps -a | tail -n +2 | peco --prompt="target >" | cut -d" " -f1 )"
+      ;;
     $scope_docker)
       local docker_targets_list
       docker_targets_list=()
@@ -110,6 +115,14 @@ pecorian_cmd() {
   elif [ $scope = $scope_trush ]; then
     action_list=(${action_list[@]} "remove")
     action_list=(${action_list[@]} "open with explorer")
+  elif [ $scope = $scope_docker_container ]; then
+    action_list=(${action_list[@]} "start")
+    action_list=(${action_list[@]} "stop")
+    action_list=(${action_list[@]} "log")
+    action_list=(${action_list[@]} "exec (run a new command in a running container)")
+    action_list=(${action_list[@]} "attach (connect to PID=1 process)")
+    action_list=(${action_list[@]} "remove")
+    action_list=(${action_list[@]} "commit")
   elif [ $scope = $scope_docker ]; then
     action_list=(${action_list[@]} "remove")
   elif [ -d $eval_target ]; then
@@ -184,6 +197,23 @@ pecorian_cmd() {
         local action="open ~/.Trash/"
       fi
     fi
+  elif [ $scope = $scope_docker_container ]; then
+    if [ $action = "start" ]; then
+      local action="docker start"
+    elif [ $action = "stop" ]; then
+      local action="docker stop"
+    elif [ $action = "log" ]; then
+      local action="docker logs"
+    elif [ $action = "exec (run a new command in a running container)" ]; then
+      local action="docker exec -it" # -i:interactive, -t:tty
+      post_command="ps -aux" # 例)プロセスを表示
+    elif [ $action = "attach (connect to PID=1 process)" ]; then
+      local action="docker attach"
+    elif [ $action = "remove" ]; then
+      local action="docker rm"
+    elif [ $action = "commit" ]; then
+      local action="docker commit"
+    fi
   elif [ $scope = $scope_docker ]; then
     if [ $action = "remove" ]; then
       if [ $target = "containers stopped" ]; then
@@ -193,7 +223,7 @@ pecorian_cmd() {
       elif [ $target = "images that is not used in all containers" ]; then
         local action="docker images prune" #prune: 刈り込む
       elif [ $target = "images that is not tagged (i.e. <none>:<none>)" ]; then
-        local action='docker rmi $(docker images -aqf 'dangling=true')' #danling: ぶら下がる
+        local action='docker rmi $(docker images -aqf 'dangling=true')' #dangling: ぶら下がる
       else
       fi
       target=""
