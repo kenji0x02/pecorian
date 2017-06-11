@@ -4,7 +4,7 @@ if [ -e $GOPATH/src/github.com/kenji0x02/pecorian/pecorian.sh ]; then
 fi
 
 pecorian() {
-  local cmd=`pecorian_cmd`
+  local cmd="`pecorian_cmd`"
   BUFFER="$cmd"
   CURSOR=${#BUFFER}
 }
