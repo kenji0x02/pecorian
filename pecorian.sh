@@ -110,6 +110,7 @@ pecorian_cmd() {
   if [ $scope = $scope_git_rep ]; then
     action_list=(${action_list[@]} "cd")
     action_list=(${action_list[@]} "cd && open with explorer")
+    action_list=(${action_list[@]} "cd && git pull origin master")
     action_list=(${action_list[@]} "open with browser")
   elif [ $scope = $scope_process ]; then action_list=(${action_list[@]} "kill")
     action_list=(${action_list[@]} "show detail")
@@ -156,6 +157,16 @@ pecorian_cmd() {
       fi
       target=${ghq_root}/${target}
       action="cd"
+    elif [ $action = "cd && git pull origin master" ]; then
+      local ghq_root=""
+      if [ "$COMSPEC" != "" ]; then
+        ghq_root="$( cygpath `ghq root` )" # Windowsの場合はスラッシュ表記に変更
+      else
+        ghq_root="`ghq root`"
+      fi
+      target=${ghq_root}/${target}
+      action="cd"
+      post_command="&& git pull origin master"
     elif [ $action = "cd" ]; then
       local ghq_root=""
       if [ "$COMSPEC" != "" ]; then
