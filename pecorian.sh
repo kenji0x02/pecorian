@@ -238,6 +238,7 @@ pecorian_cmd() {
       elif [ $target = "images that is not tagged (i.e. <none>:<none>)" ]; then
         local action='docker rmi $(docker images -aqf 'dangling=true')' #dangling: ぶら下がる
       else
+      	local action=""
       fi
       target=""
     fi
