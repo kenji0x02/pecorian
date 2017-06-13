@@ -124,6 +124,7 @@ pecorian_cmd() {
     action_list=(${action_list[@]} "log")
     action_list=(${action_list[@]} "exec (run a new command in a running container)")
     action_list=(${action_list[@]} "attach (connect to PID=1 process)")
+    action_list=(${action_list[@]} "top (display the running processes outside the containter)")
     action_list=(${action_list[@]} "remove")
     action_list=(${action_list[@]} "commit")
   elif [ $scope = $scope_docker ]; then
@@ -222,6 +223,9 @@ pecorian_cmd() {
       post_command="ps -aux" # 例)プロセスを表示
     elif [ $action = "attach (connect to PID=1 process)" ]; then
       local action="docker attach"
+    elif [ $action = "top (display the running processes outside the containter)" ]; then
+      local action="docker top"
+      post_command="| unexpand -t20" # 少々見にくいので整形して表示
     elif [ $action = "remove" ]; then
       local action="docker rm"
     elif [ $action = "commit" ]; then
