@@ -118,15 +118,19 @@ pecorian_cmd() {
     action_list=(${action_list[@]} "remove")
     action_list=(${action_list[@]} "open with explorer")
   elif [ $scope = $scope_docker_container ]; then
-    # todo: 停止しているコンテナに対してのみ表示
-    action_list=(${action_list[@]} "start")
-    action_list=(${action_list[@]} "stop")
-    action_list=(${action_list[@]} "log")
-    action_list=(${action_list[@]} "exec (run a new command in a running container)")
-    action_list=(${action_list[@]} "attach (connect to PID=1 process)")
-    action_list=(${action_list[@]} "top (display the running processes outside the containter)")
-    action_list=(${action_list[@]} "remove")
-    action_list=(${action_list[@]} "commit")
+    local is_running="$(docker ps -a -f id=$target -f status=running --format {{.ID}})"
+    if [ $is_running != "" ]; then
+      # 起動しているコンテナに対するアクション
+      action_list=(${action_list[@]} "log")
+      action_list=(${action_list[@]} "exec (run a new command in a running container)")
+      action_list=(${action_list[@]} "attach (connect to PID=1 process)")
+      action_list=(${action_list[@]} "top (display the running processes outside the containter)")
+      action_list=(${action_list[@]} "stop")
+    else
+      action_list=(${action_list[@]} "start")
+      action_list=(${action_list[@]} "remove")
+      action_list=(${action_list[@]} "commit")
+    fi
   elif [ $scope = $scope_docker ]; then
     action_list=(${action_list[@]} "remove")
   elif [ -d $eval_target ]; then
@@ -242,7 +246,7 @@ pecorian_cmd() {
       elif [ $target = "images that is not tagged (i.e. <none>:<none>)" ]; then
         local action='docker rmi $(docker images -aqf 'dangling=true')' #dangling: ぶら下がる
       else
-      	local action=""
+        local action=""
       fi
       target=""
     fi
