@@ -85,6 +85,10 @@ pecorian_cmd() {
       target=""
       ;;
     $scope_docker_container)
+      if [ -z "$(docker ps -a --format {{.ID}})" ]; then
+        echo "Error. There is no containers."
+        return 1
+      fi
       # 空白カラムが存在するケースがあるのでNAMES属性はとれない
       target="$( docker ps -a | tail -n +2 | peco --prompt="target >" | cut -d" " -f1 )"
       ;;
