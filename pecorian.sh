@@ -95,6 +95,10 @@ pecorian_cmd() {
     $scope_docker)
       local docker_targets_list
       docker_targets_list=()
+      # docker-composeが使える場合のみdocker-composeで管理されているコンテナを対象とする
+      if [ -e "docker-compose.yml" ] || [ -e "docker-compose.yaml" ]; then
+        docker_targets_list=(${docker_targets_list[@]} "containers managed by Compose")
+      fi
       docker_targets_list=(${docker_targets_list[@]} "containers stopped")
       docker_targets_list=(${docker_targets_list[@]} "containers all")
       docker_targets_list=(${docker_targets_list[@]} "images that is not used in all containers")
@@ -137,7 +141,17 @@ pecorian_cmd() {
       action_list=(${action_list[@]} "commit")
     fi
   elif [ $scope = $scope_docker ]; then
-    action_list=(${action_list[@]} "remove")
+    if [ $target = "containers managed by Compose" ]; then
+      action_list=(${action_list[@]} "build, create and start") # サービスを構築(build)して、コンテナ作成(create)と開始(start)
+      action_list=(${action_list[@]} "logs") # 関係するコンテナのすべての出力を表示
+      action_list=(${action_list[@]} "stop")
+      action_list=(${action_list[@]} "remove")
+      action_list=(${action_list[@]} "down(stop and rm service) and delete images") # 関係するコンテナをまとめて停止して削除
+      action_list=(${action_list[@]} "ps") # 関係するコンテナの一覧表示
+      action_list=(${action_list[@]} "restart") # 関係するコンテナの再起動
+    else
+      action_list=(${action_list[@]} "remove")
+    fi
   elif [ -d $eval_target ]; then
     action_list=(${action_list[@]} "cd")
     action_list=(${action_list[@]} "ls -al")
@@ -241,19 +255,39 @@ pecorian_cmd() {
       local action="docker commit"
     fi
   elif [ $scope = $scope_docker ]; then
-    if [ $action = "remove" ]; then
-      if [ $target = "containers stopped" ]; then
-        local action="docker container prune" #prune: 刈り込む
-      elif [ $target = "containers all" ]; then
-        local action='docker rm -f $(docker ps -aq)'
-      elif [ $target = "images that is not used in all containers" ]; then
-        local action="docker images prune" #prune: 刈り込む
-      elif [ $target = "images that is not tagged (i.e. <none>:<none>)" ]; then
-        local action='docker rmi $(docker images -aqf 'dangling=true')' #dangling: ぶら下がる
+    if [ $target = "containers managed by Compose" ]; then
+      if [ $action = "build, create and start" ]; then
+        action="docker-compose up -d --build"
+      elif [ $action = "logs" ]; then
+        action="docker-compose logs -tf" # t: time, f: follow
+      elif [ $action = "stop" ]; then
+        action="docker-compose stop"
+      elif [ $action = "remove" ]; then
+        action="docker-compose rm"
+      elif [ $action = "down(stop and rm service) and delete images" ]; then 
+        action="docker-compose down --rmi all"
+      elif [ $action = "ps" ]; then
+        action="docker-compose ps"
+      elif [ $action = "restart" ]; then
+        action="docker-compose restart"
       else
-        local action=""
       fi
       target=""
+    else
+      if [ $action = "remove" ]; then
+        if [ $target = "containers stopped" ]; then
+          local action="docker container prune" #prune: 刈り込む
+        elif [ $target = "containers all" ]; then
+          local action='docker rm -f $(docker ps -aq)'
+        elif [ $target = "images that is not used in all containers" ]; then
+          local action="docker images prune" #prune: 刈り込む
+        elif [ $target = "images that is not tagged (i.e. <none>:<none>)" ]; then
+          local action='docker rmi $(docker images -aqf 'dangling=true')' #dangling: ぶら下がる
+        else
+          local action=""
+        fi
+        target=""
+      fi
     fi
   fi
 
