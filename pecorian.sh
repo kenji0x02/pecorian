@@ -131,6 +131,7 @@ pecorian_cmd() {
       action_list=(${action_list[@]} "top (display the running processes outside the containter)")
       action_list=(${action_list[@]} "stop")
     else
+      action_list=(${action_list[@]} "log")
       action_list=(${action_list[@]} "start")
       action_list=(${action_list[@]} "remove")
       action_list=(${action_list[@]} "commit")
