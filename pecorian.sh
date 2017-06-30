@@ -40,7 +40,8 @@ pecorian_cmd() {
     scope_list=(${scope_list[@]} $scope_docker)
   fi
 
-  local scope="$( for s in ${scope_list[@]}; do echo $s; done | peco --prompt="scope >")"
+  local scope=$( for s in ${scope_list[@]}; do echo $s; done | pip_peco target )
+  [ -z "$scope" ] && exit 1
 
   # 2) select target
   # todo: 新規作成のフロー新規作成ファイル名を指定？？
@@ -49,37 +50,37 @@ pecorian_cmd() {
   case $scope in
     $scope_current_dir)
       # カレントディレクトリ[.]と親ディレクトリ[..]を表示しない(Aオプション)
-      target="$( \ls -AF --group-directories-first | peco --prompt="target >")" # エイリアスを外して、ディレクトリは/をつけて表示(Fオプション)
+      target="$( \ls -AF --group-directories-first | pip_peco target )" # エイリアスを外して、ディレクトリは/をつけて表示(Fオプション)
       ;;
     $scope_current_dir_below2)
       # findは難しい、http://takuya-1st.hatenablog.jp/entry/20110918/1316338219
-      target="$( find . -maxdepth 2 -type d -name '.git' -prune -o -print | peco --prompt="target >")"
+      target="$( find . -maxdepth 2 -type d -name '.git' -prune -o -print | pip_peco target )"
       ;;
     $scope_current_dir_below3)
-      target="$( find . -maxdepth 3 -type d -name '.git' -prune -o -print | peco --prompt="target >")"
+      target="$( find . -maxdepth 3 -type d -name '.git' -prune -o -print | pip_peco target )"
       ;;
     $scope_current_dir_below_all)
-      target="$( find . -type d -name '.git' -prune -o -print | peco --prompt="target >")"
+      target="$( find . -type d -name '.git' -prune -o -print | pip_peco target )"
       ;;
     $scope_favorite)
-      target="$( cat ~/.dir_favorite | head -n $((LINES - 3)) | peco --prompt="target >")"
+      target="$( cat ~/.dir_favorite | head -n $((LINES - 3)) | pip_peco target )"
       ;;
     $scope_recent)
       # とりあえず1行捨てるバージョンで表示
-      target="$( tac ~/.dir_history | sed '1d' | awk '!a[$0]++' | head -n $((LINES - 3)) | peco --prompt="target >")"
+      target="$( tac ~/.dir_history | sed '1d' | awk '!a[$0]++' | head -n $((LINES - 3)) | pip_peco target )"
       ;;
     $scope_git_rep)
-      target="$( ghq list | peco --prompt="target >")"
+      target="$( ghq list | pip_peco target )"
       ;;
     $scope_process)
       if [ "$COMSPEC" != "" ]; then
-        target="$( tasklist | peco --prompt="target >"| awk '{print $2}')"
+        target="$( tasklist | pip_peco target | awk '{print $2}')"
       else
-        target="$( ps aux | peco --prompt="target >"| awk '{print $2}')"
+        target="$( ps aux | pip_peco target | awk '{print $2}')"
       fi
       ;;
     $scope_path)
-      target="$( echo $PATH | tr ':' '\n' | peco --prompt="target >")"
+      target="$( echo $PATH | tr ':' '\n' | pip_peco target )"
       ;;
     $scope_trush)
       target=""
@@ -90,7 +91,7 @@ pecorian_cmd() {
         return 1
       fi
       # 空白カラムが存在するケースがあるのでNAMES属性はとれない
-      target="$( docker ps -a | tail -n +2 | peco --prompt="target >" | cut -d" " -f1 )"
+      target="$( docker ps -a | tail -n +2 | pip_peco target | cut -d" " -f1 )"
       ;;
     $scope_docker)
       local docker_targets_list
@@ -104,11 +105,12 @@ pecorian_cmd() {
       docker_targets_list=(${docker_targets_list[@]} "images that is not used in all containers")
       docker_targets_list=(${docker_targets_list[@]} "images that is not tagged (i.e. <none>:<none>)")
       scope_list=(${scope_list[@]} $scope_current_dir)
-      target="$( for s in ${docker_targets_list[@]}; do echo $s; done | peco --prompt="target >")"
+      target="$( for s in ${docker_targets_list[@]}; do echo $s; done | pip_peco target )"
       ;;
     *) # 上記以外
-      target="$( \ls -AF --group-directories-first | peco --prompt="target >")" # エイリアスを外して、ディレクトリは/をつけて表示
+      target="$( \ls -AF --group-directories-first | pip_peco target )" # エイリアスを外して、ディレクトリは/をつけて表示
   esac
+  [ -z "$target" ] && exit 1
 
   # 3) select action
   local action_list
@@ -167,7 +169,8 @@ pecorian_cmd() {
     local action_list=(open vi mv rm cp ls cat less) # openコマンドは自前で実装
   fi
 
-  local action="$(for e in ${action_list[@]}; do echo $e; done | peco --prompt="action >")"
+  local action="$(for e in ${action_list[@]}; do echo $e; done | pip_peco action )"
+  [ -z "$action" ] && exit 1
 
   if [ $scope = $scope_git_rep ]; then
     if [ $action = "cd && open with explorer" ]; then
@@ -298,3 +301,7 @@ pecorian_cmd() {
   return
 }
 
+pip_peco()
+{
+  peco --prompt="$1 >" --on-cancel error
+}
