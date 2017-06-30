@@ -274,6 +274,7 @@ pecorian_cmd() {
       elif [ $action = "restart" ]; then
         action="docker-compose restart"
       else
+        action=""
       fi
       target=""
     else
