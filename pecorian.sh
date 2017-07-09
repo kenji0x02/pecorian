@@ -51,19 +51,19 @@ pecorian_cmd() {
   fi
 
   if [ -e "$pecorian_config_base/process.sh" ]; then 
-    local scope_git_rep="Process"
+    local scope_process="Process"
     scope_list=(${scope_list[@]} $scope_process)
   fi
 
   if [ -e "$pecorian_config_base/path.sh" ]; then 
-    local scope_git_rep="Path"
+    local scope_path="Path"
     scope_list=(${scope_list[@]} $scope_path)
   fi
 
   if [ -e "$pecorian_config_base/trush.sh" ]; then 
     # WindowまたはMacでのみ表示
     if [ "$COMSPEC" != "" ] || [ `uname` = "Darwin" ]; then 
-      local scope_git_rep="Trush"
+      local scope_trush="Trush"
       scope_list=(${scope_list[@]} $scope_trush)
     fi
   fi
@@ -73,14 +73,14 @@ pecorian_cmd() {
     # whichコマンドで探すよりも組込みコマンドのtypeの方が速いらしい
     # http://qiita.com/kawaz/items/1b61ee2dd4d1acc7cc94
     if type "docker" > /dev/null 2>&1; then
-      local scope_git_rep="Docker a container"
+      local scope_docker_container="Docker a container"
       scope_list=(${scope_list[@]} $scope_docker_container)
     fi
   fi
 
   if [ -e "$pecorian_config_base/docker.sh" ]; then 
     if type "docker" > /dev/null 2>&1; then
-      local scope_git_rep="Docker containers/images"
+      local scope_docker="Docker containers/images"
       scope_list=(${scope_list[@]} $scope_docker)
     fi
   fi
