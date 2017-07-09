@@ -38,7 +38,7 @@ pecorian_cmd() {
   fi
 
   if [ -e "$pecorian_config_base/current_dir_below_all.sh" ]; then 
-    local scope_current_dir_below_all="Current dir below depth _all"
+    local scope_current_dir_below_all="Current dir below depth all"
     scope_list=(${scope_list[@]} $scope_current_dir_below_all)
   fi
 
@@ -53,8 +53,10 @@ pecorian_cmd() {
   fi
 
   if [ -e "$pecorian_config_base/git_repository.sh" ]; then 
-    local scope_git_rep="Git repository(ghq)"
-    scope_list=(${scope_list[@]} $scope_git_rep)
+    if type "ghq" > /dev/null 2>&1; then
+      local scope_git_rep="Git repository(ghq)"
+      scope_list=(${scope_list[@]} $scope_git_rep)
+    fi
   fi
 
   if [ -e "$pecorian_config_base/process.sh" ]; then 
