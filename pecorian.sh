@@ -24,26 +24,17 @@ pecorian_cmd() {
 
   if [ -e "$pecorian_config_base/current_dir.sh" ]; then 
     local scope_current_dir="Current dir"
-    scope_list=(${scope_list[@]} $scope_current_dir)
-  fi
-
-  if [ -e "$pecorian_config_base/current_dir_below2.sh" ]; then 
     local scope_current_dir_below2="Current dir below depth 2"
-    scope_list=(${scope_list[@]} $scope_current_dir_below2)
-  fi
-
-  if [ -e "$pecorian_config_base/current_dir_below3.sh" ]; then 
     local scope_current_dir_below3="Current dir below depth 3"
-    scope_list=(${scope_list[@]} $scope_current_dir_below3)
-  fi
-
-  if [ -e "$pecorian_config_base/current_dir_below_all.sh" ]; then 
     local scope_current_dir_below_all="Current dir below depth all"
+    scope_list=(${scope_list[@]} $scope_current_dir)
+    scope_list=(${scope_list[@]} $scope_current_dir_below2)
+    scope_list=(${scope_list[@]} $scope_current_dir_below3)
     scope_list=(${scope_list[@]} $scope_current_dir_below_all)
   fi
 
-  if [ -e "$pecorian_config_base/favorit.sh" ]; then 
-    local scope_favorite="Favorit"
+  if [ -e "$pecorian_config_base/favorite.sh" ]; then 
+    local scope_favorite="Favorite"
     scope_list=(${scope_list[@]} $scope_favorite)
   fi
 
@@ -100,19 +91,19 @@ pecorian_cmd() {
   # create command for each scope
   case $scope in
     $scope_current_dir)
-      pecorian_current_dir_cmd
+      pecorian_current_dir_cmd 1
       ;;
     $scope_current_dir_below2)
-      pecorian_current_dir_below2_cmd
+      pecorian_current_dir_cmd 2
       ;;
     $scope_current_dir_below3)
-      pecorian_current_dir_below3_cmd
+      pecorian_current_dir_cmd 3
       ;;
     $scope_current_dir_below_all)
-      pecorian_current_dir_below_all_cmd
+      pecorian_current_dir_cmd all
       ;;
     $scope_favorite)
-      pecorian_favorit_cmd
+      pecorian_favorite_cmd
       ;;
     $scope_recent)
       pecorian_recent_cmd
@@ -155,3 +146,12 @@ pecorian_abort()
   exit 1
 }
 
+pecorian_is_windows_os()
+{
+  [ "$COMSPEC" != "" ]
+}
+
+pecorian_is_mac_os()
+{
+  [ `uname` = "Darwin" ]
+}
