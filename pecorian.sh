@@ -1,9 +1,30 @@
-# load pecorian sources
+# helper
+pip_peco()
+{
+  peco --prompt="$1 >" --on-cancel error
+}
 
+pecorian_abort()
+{
+  IFS=$PECORIAN_IFS_BACKUP
+  exit 1
+}
+
+pecorian_is_windows_os()
+{
+  [ "$COMSPEC" != "" ]
+}
+
+pecorian_is_mac_os()
+{
+  [ `uname` = "Darwin" ]
+}
+
+# load pecorian sources
 pecorian_config_base()
 {
   local go_path=$GOPATH
-  if [ "$COMSPEC" != "" ]; then
+  if pecorian_is_windows_os; then
     go_path="$( cygpath $GOPATH )" # Windowsの場合はスラッシュ表記に変更
   fi
   echo $go_path/src/github.com/kenji0x02/pecorian/pecorian.d
@@ -15,6 +36,7 @@ done
 
 export PECORIAN_IFS_BACKUP=$IFS
 
+# main
 pecorian_cmd() {
   # 配列に半角スペースを許す
   IFS=$'\n'
@@ -61,8 +83,7 @@ pecorian_cmd() {
   fi
 
   if [ -e "$pecorian_config_base/trush.sh" ]; then 
-    # WindowまたはMacでのみ表示
-    if [ "$COMSPEC" != "" ] || [ `uname` = "Darwin" ]; then 
+    if pecorian_is_windows_os || pecorian_is_mac_os; then 
       local scope_trush="Trush"
       scope_list=(${scope_list[@]} $scope_trush)
     fi
@@ -73,8 +94,10 @@ pecorian_cmd() {
     # whichコマンドで探すよりも組込みコマンドのtypeの方が速いらしい
     # http://qiita.com/kawaz/items/1b61ee2dd4d1acc7cc94
     if type "docker" > /dev/null 2>&1; then
-      local scope_docker_container="Docker a container"
-      scope_list=(${scope_list[@]} $scope_docker_container)
+      if [ -n "$(docker ps -a --format {{.ID}})" ]; then
+        local scope_docker_container="Docker a container"
+        scope_list=(${scope_list[@]} $scope_docker_container)
+      fi
     fi
   fi
 
@@ -133,25 +156,4 @@ pecorian_cmd() {
   IFS=$PECORIAN_IFS_BACKUP
 
   return
-}
-
-pip_peco()
-{
-  peco --prompt="$1 >" --on-cancel error
-}
-
-pecorian_abort()
-{
-  IFS=$PECORIAN_IFS_BACKUP
-  exit 1
-}
-
-pecorian_is_windows_os()
-{
-  [ "$COMSPEC" != "" ]
-}
-
-pecorian_is_mac_os()
-{
-  [ `uname` = "Darwin" ]
 }
