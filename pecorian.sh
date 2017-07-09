@@ -17,7 +17,7 @@ pecorian_is_windows_os()
 
 pecorian_is_mac_os()
 {
-  [ `uname` = "Darwin" ]
+  [ `uname` == "Darwin" ]
 }
 
 # load pecorian sources

@@ -14,9 +14,10 @@ pecorian_process_cmd() {
   # 3) select action
   local action_list
   action_list=()
-  action_list=(${action_list[@]} "kill")
   if pecorian_is_mac_os; then
+    action_list=(${action_list[@]} "kill")
   else
+    action_list=(${action_list[@]} "kill")
     action_list=(${action_list[@]} "show detail")
   fi
   # common process ("action" is always selected from array)
