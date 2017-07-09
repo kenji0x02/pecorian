@@ -56,13 +56,10 @@ pecorian_cmd() {
   fi
 
   if [ -e "$pecorian_config_base/favorite.sh" ]; then 
-    local scope_favorite="Favorite"
-    scope_list=(${scope_list[@]} $scope_favorite)
-  fi
-
-  if [ -e "$pecorian_config_base/recent.sh" ]; then 
-    local scope_reecent="Recently used"
-    scope_list=(${scope_list[@]} $scope_recent)
+    if [ -e ~/.dir_favorite ]; then 
+      local scope_favorite="Favorite"
+      scope_list=(${scope_list[@]} $scope_favorite)
+    fi
   fi
 
   if [ -e "$pecorian_config_base/git_repository.sh" ]; then 
@@ -127,9 +124,6 @@ pecorian_cmd() {
       ;;
     $scope_favorite)
       pecorian_favorite_cmd
-      ;;
-    $scope_recent)
-      pecorian_recent_cmd
       ;;
     $scope_git_rep)
       pecorian_git_repository_cmd

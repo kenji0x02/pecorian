@@ -48,14 +48,17 @@ pecorian_current_dir_cmd() {
     fi
   else
     # ディレクトリじゃないときのコマンドリスト
-    action_list=(open vi mv rm cp ls cat less) # openコマンドは自前で実装
+    action_list=(vi mv rm cp ls cat less)
   fi
   # common process ("action" is always selected from array)
   local action="$(for e in ${action_list[@]}; do echo $e; done | pip_peco action )"
   [ -z "$action" ] && pecorian_abort
 
   # 4) create command
-  # do nothing
+  # 空白文字列を含む場合は""で囲う
+  if [[ "$target" =~ " " ]]; then
+    target="\"${target}\""
+  fi
 
   # 5) return command
   echo "${action} ${target} ${post_command}"
