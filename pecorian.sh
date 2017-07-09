@@ -1,11 +1,24 @@
-
 # load pecorian sources
-pecorian_config_base=$GOPATH/src/github.com/kenji0x02/pecorian/pecorian.d
+
+pecorian_config_base()
+{
+  local go_path=$GOPATH
+  if [ "$COMSPEC" != "" ]; then
+    go_path="$( cygpath $GOPATH )" # Windowsの場合はスラッシュ表記に変更
+  fi
+  echo $go_path/src/github.com/kenji0x02/pecorian/pecorian.d
+}
+pecorian_config_base=`pecorian_config_base`
 for f in `ls -1 $pecorian_config_base/*.sh`; do
   source "${f}"
 done
 
+export PECORIAN_IFS_BACKUP=$IFS
+
 pecorian_cmd() {
+  # 配列に半角スペースを許す
+  IFS=$'\n'
+
   # 1) select scope
   scope_list=()
 
@@ -80,7 +93,7 @@ pecorian_cmd() {
   fi
 
   local scope=$( for s in ${scope_list[@]}; do echo $s; done | pip_peco target )
-  [ -z "$scope" ] && exit 1
+  [ -z "$scope" ] && pecorian_abort
 
   # create command for each scope
   case $scope in
@@ -123,7 +136,8 @@ pecorian_cmd() {
     *)
       exit 1
   esac
-  [ -z "$target" ] && exit 1
+
+  IFS=$PECORIAN_IFS_BACKUP
 
   return
 }
@@ -132,3 +146,10 @@ pip_peco()
 {
   peco --prompt="$1 >" --on-cancel error
 }
+
+pecorian_abort()
+{
+  IFS=$PECORIAN_IFS_BACKUP
+  exit 1
+}
+
