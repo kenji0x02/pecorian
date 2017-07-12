@@ -12,7 +12,9 @@ pecorian_git_repository_cmd() {
   action_list=(${action_list[@]} "cd")
   action_list=(${action_list[@]} "cd && open with explorer")
   action_list=(${action_list[@]} "cd && git pull origin master")
-  action_list=(${action_list[@]} "open with browser")
+  if type "hub" > /dev/null 2>&1; then
+    action_list=(${action_list[@]} "open with browser")
+  fi
   # common process ("action" is always selected from array)
   local action="$(for e in ${action_list[@]}; do echo $e; done | pip_peco action )"
   [ -z "$action" ] && pecorian_abort
