@@ -91,17 +91,22 @@ pecorian_cmd() {
     # whichコマンドで探すよりも組込みコマンドのtypeの方が速いらしい
     # http://qiita.com/kawaz/items/1b61ee2dd4d1acc7cc94
     if type "docker" > /dev/null 2>&1; then
-      if [ -n "$(docker ps -a --format {{.ID}})" ]; then
-        local scope_docker_container="Docker a container"
-        scope_list=(${scope_list[@]} $scope_docker_container)
+      # need to start docker for windows
+      if pecorian_is_windows_os && [ "$DOCKER_HOST" != "" ]; then
+        if [ -n "$(docker ps -a --format {{.ID}})" ]; then
+          local scope_docker_container="Docker a container"
+          scope_list=(${scope_list[@]} $scope_docker_container)
+        fi
       fi
     fi
   fi
 
   if [ -e "$pecorian_config_base/docker.sh" ]; then 
     if type "docker" > /dev/null 2>&1; then
-      local scope_docker="Docker containers/images"
-      scope_list=(${scope_list[@]} $scope_docker)
+      if pecorian_is_windows_os && [ "$DOCKER_HOST" != "" ]; then
+       local scope_docker="Docker containers/images"
+       scope_list=(${scope_list[@]} $scope_docker)
+      fi
     fi
   fi
 
