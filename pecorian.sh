@@ -46,13 +46,9 @@ pecorian_cmd() {
 
   if [ -e "$pecorian_config_base/current_dir.sh" ]; then 
     local scope_current_dir="Current dir"
-    local scope_current_dir_below2="Current dir below depth 2"
-    local scope_current_dir_below3="Current dir below depth 3"
-    local scope_current_dir_below_all="Current dir below depth all"
+    local scope_current_dir_all_sub_dir="Current dir + all sub dir"
     scope_list=(${scope_list[@]} $scope_current_dir)
-    scope_list=(${scope_list[@]} $scope_current_dir_below2)
-    scope_list=(${scope_list[@]} $scope_current_dir_below3)
-    scope_list=(${scope_list[@]} $scope_current_dir_below_all)
+    scope_list=(${scope_list[@]} $scope_current_dir_all_sub_dir)
   fi
 
   if [ -e "$pecorian_config_base/favorite.sh" ]; then 
@@ -118,13 +114,7 @@ pecorian_cmd() {
     $scope_current_dir)
       pecorian_current_dir_cmd 1
       ;;
-    $scope_current_dir_below2)
-      pecorian_current_dir_cmd 2
-      ;;
-    $scope_current_dir_below3)
-      pecorian_current_dir_cmd 3
-      ;;
-    $scope_current_dir_below_all)
+    $scope_current_dir_all_sub_dir)
       pecorian_current_dir_cmd all
       ;;
     $scope_favorite)
