@@ -88,7 +88,14 @@ pecorian_cmd() {
     # http://qiita.com/kawaz/items/1b61ee2dd4d1acc7cc94
     if type "docker" > /dev/null 2>&1; then
       # need to start docker for windows
-      if pecorian_is_windows_os && [ "$DOCKER_HOST" != "" ]; then
+      if pecorian_is_windows_os; then
+        if [ "$DOCKER_HOST" != "" ]; then
+          if [ -n "$(docker ps -a --format {{.ID}})" ]; then
+            local scope_docker_container="Docker a container"
+            scope_list=(${scope_list[@]} $scope_docker_container)
+          fi
+        fi
+      else
         if [ -n "$(docker ps -a --format {{.ID}})" ]; then
           local scope_docker_container="Docker a container"
           scope_list=(${scope_list[@]} $scope_docker_container)
@@ -99,9 +106,14 @@ pecorian_cmd() {
 
   if [ -e "$pecorian_config_base/docker.sh" ]; then 
     if type "docker" > /dev/null 2>&1; then
-      if pecorian_is_windows_os && [ "$DOCKER_HOST" != "" ]; then
-       local scope_docker="Docker containers/images"
-       scope_list=(${scope_list[@]} $scope_docker)
+      if pecorian_is_windows_os; then
+        if [ "$DOCKER_HOST" != "" ]; then
+          local scope_docker="Docker containers/images"
+          scope_list=(${scope_list[@]} $scope_docker)
+        fi
+      else
+        local scope_docker="Docker containers/images"
+        scope_list=(${scope_list[@]} $scope_docker)
       fi
     fi
   fi
