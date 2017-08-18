@@ -37,7 +37,8 @@ pecorian_docker_container_cmd() {
     local action="docker logs -tf" # -t:時間も表示, -f(--folow):ログを出力し続ける
   elif [ $action = "exec (run a new command in a running container)" ]; then
     local action="docker exec -it" # -i:interactive, -t:tty
-    post_command="ps -aux" # 例)プロセスを表示
+    # post_command="ps -aux" # 例)プロセスを表示
+    post_command="bash" # 例)bashでログイン
   elif [ $action = "attach (connect to PID=1 process)" ]; then
     local action="docker attach"
   elif [ $action = "top (display the running processes outside the containter)" ]; then
