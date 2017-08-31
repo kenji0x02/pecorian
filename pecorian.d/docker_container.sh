@@ -34,7 +34,7 @@ pecorian_docker_container_cmd() {
   elif [ $action = "stop" ]; then
     local action="docker stop"
   elif [ $action = "log" ]; then
-    local action="docker logs -tf" # -t:時間も表示, -f(--folow):ログを出力し続ける
+    local action="docker logs -tf --tail=100" # -t:時間も表示, -f(--folow):ログを出力し続ける, --tail=100:最終行から100行遡る
   elif [ $action = "exec (run a new command in a running container)" ]; then
     local action="docker exec -it" # -i:interactive, -t:tty
     # post_command="ps -aux" # 例)プロセスを表示
