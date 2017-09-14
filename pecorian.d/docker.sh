@@ -9,6 +9,7 @@ pecorian_docker_cmd() {
   fi
   targets_list=(${targets_list[@]} "containers stopped")
   targets_list=(${targets_list[@]} "containers all")
+  targets_list=(${targets_list[@]} "containers up")
   targets_list=(${targets_list[@]} "images that is not used in all containers")
   targets_list=(${targets_list[@]} "images that is not tagged (i.e. <none>:<none>)")
   target="$( for s in ${targets_list[@]}; do echo $s; done | pip_peco target )"
@@ -27,6 +28,8 @@ pecorian_docker_cmd() {
     action_list=(${action_list[@]} "down(stop and rm service) and delete images") # 関係するコンテナをまとめて停止して削除
     action_list=(${action_list[@]} "ps") # 関係するコンテナの一覧表示
     action_list=(${action_list[@]} "restart") # 関係するコンテナの再起動
+  elif [ $target = "containers up" ]; then
+    action_list=(${action_list[@]} "statistics")
   else
     action_list=(${action_list[@]} "remove")
   fi
@@ -50,6 +53,13 @@ pecorian_docker_cmd() {
       action="docker-compose ps"
     elif [ $action = "restart" ]; then
       action="docker-compose restart"
+    else
+      action=""
+    fi
+    target=""
+  elif [ $target = "containers up" ]; then
+    if [ $action = "statistics" ]; then
+      action="docker stats"
     else
       action=""
     fi
