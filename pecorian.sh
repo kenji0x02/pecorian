@@ -118,6 +118,13 @@ pecorian_cmd() {
     fi
   fi
 
+  if [ -e "$pecorian_config_base/conda.sh" ]; then 
+    if type "conda" > /dev/null 2>&1; then
+      local scope_conda="Python packages(conda)"
+      scope_list=(${scope_list[@]} $scope_conda)
+    fi
+  fi
+
   local scope=$( for s in ${scope_list[@]}; do echo $s; done | pip_peco target )
   [ -z "$scope" ] && pecorian_abort
 
@@ -149,6 +156,9 @@ pecorian_cmd() {
       ;;
     $scope_docker)
       pecorian_docker_cmd
+      ;;
+    $scope_conda)
+      pecorian_conda_cmd
       ;;
     *)
       exit 1
