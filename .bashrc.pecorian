@@ -11,8 +11,9 @@ pecorian() {
 bind -x '"\C-j": pecorian'
 
 # pecoで履歴検索
+export HISTTIMEFORMAT="%Y-%m-%d %R  " # 出力フォーマットの指定
 peco_select_history() {
-  local l=$(HISTTIMEFORMAT= history | tac | sed -e 's/^\s*[0-9]\+\s\+//' | awk '!a[$0]++' | peco --query "$READLINE_LINE")
+  local l=$( history | tac | sed -e 's/^\s*[0-9]\+\s\+//' | awk '!a[$0]++' | peco --query "$READLINE_LINE" | sed -e 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}\s*[0-9]\{2\}:[0-9]\{2\}\s*//')
   READLINE_LINE="$l"
   READLINE_POINT=${#l}
 }
