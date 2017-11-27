@@ -14,7 +14,8 @@ bind -x '"\C-j": pecorian'
 export HISTTIMEFORMAT="%Y-%m-%d %R  " # 出力フォーマットの指定
 pecorian_select_history() {
   # 履歴表示 | 降順 | 履歴通し番号削除 | 重複行削除 | peco | 日時削除
-  echo $( history | tac | sed -e 's/^\s*[0-9]\+\s\+//' | awk '!a[$0]++' | peco --query "$READLINE_LINE" | sed -e 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}\s*[0-9]\{2\}:[0-9]\{2\}\s*//')
+  # sedの正規表現では空白行を\sでは表現できないので空白行を直接入力する
+  echo $( history | tac | sed -e 's/^\s*[0-9]\+\s\+//' | awk '!a[$0]++' | peco --query "$READLINE_LINE" | sed -e 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\} *//')
   return
 }
 peco_select_history() {
