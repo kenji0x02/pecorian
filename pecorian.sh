@@ -129,7 +129,7 @@ pecorian_cmd() {
     fi
   fi
 
-  local scope=$( for s in ${scope_list[@]}; do echo $s; done | pip_peco target )
+  local scope=$( for s in ${scope_list[@]}; do echo $s; done | pip_peco scope )
   [ -z "$scope" ] && pecorian_abort
 
   # create command for each scope
