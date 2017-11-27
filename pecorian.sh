@@ -44,6 +44,10 @@ pecorian_cmd() {
   # 1) select scope
   scope_list=()
 
+  # 常に追加
+  local scope_history="History"
+  scope_list=(${scope_list[@]} $scope_history)
+
   if [ -e "$pecorian_config_base/current_dir.sh" ]; then 
     local scope_current_dir="Current dir"
     local scope_current_dir_all_sub_dir="Current dir + all sub dir"
@@ -130,6 +134,9 @@ pecorian_cmd() {
 
   # create command for each scope
   case $scope in
+    $scope_history)
+      pecorian_select_history
+      ;;
     $scope_current_dir)
       pecorian_current_dir_cmd 1
       ;;
