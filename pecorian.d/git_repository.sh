@@ -12,6 +12,8 @@ pecorian_git_repository_cmd() {
   action_list=(${action_list[@]} "cd")
   action_list=(${action_list[@]} "cd && open with explorer")
   action_list=(${action_list[@]} "cd && git pull origin master")
+  action_list=(${action_list[@]} "cd && delete merged branches")
+  action_list=(${action_list[@]} "cd && prune remote branches")
   if type "hub" > /dev/null 2>&1; then
     action_list=(${action_list[@]} "open with browser")
   fi
@@ -54,6 +56,26 @@ pecorian_git_repository_cmd() {
     # http://qiita.com/itkrt2y/items/0671d1f48e66f21241e2
     target="$( echo $target | cut -d "/" -f 2,3 )"
     action="hub browse"
+  elif [ $action = "cd && delete merged branches" ]; then
+    local ghq_root=""
+    if pecorian_is_windows_os; then
+      ghq_root="$( cygpath `ghq root` )"
+    else
+      ghq_root="`ghq root`"
+    fi
+    target=${ghq_root}/${target}
+    action="cd"
+    post_command="&& git branch --merged | grep -v '*' | grep -vx '  master' | xargs -I % git branch -d %"
+  elif [ $action = "cd && prune remote branches" ]; then
+    local ghq_root=""
+    if pecorian_is_windows_os; then
+      ghq_root="$( cygpath `ghq root` )"
+    else
+      ghq_root="`ghq root`"
+    fi
+    target=${ghq_root}/${target}
+    action="cd"
+    post_command="&& git remote prune origin"
   fi
 
   # 5) return command
