@@ -1,7 +1,8 @@
 pecorian_git_repository_cmd() {
 
   # 2) select target
-  local target="$( ghq list | pip_peco target )"
+  # local target="$( ghq list | pip_peco target )"
+  local target="$( cd $GOPATH/src > /dev/null 2>&1 && find ./ -maxdepth 4 -path "*.git" | sed -e 's/^\.\/*//g' | sed -e 's/\/.git$//g' | pip_peco target )"
   # common process
   local post_command=""
   [ -z "$target" ] && pecorian_abort
