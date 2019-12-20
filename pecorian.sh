@@ -129,6 +129,13 @@ pecorian_cmd() {
     fi
   fi
 
+  if [ -e "$pecorian_config_base/tmux.sh" ]; then 
+    if type "tmux" > /dev/null 2>&1; then
+      local scope_tmux="Tmux"
+      scope_list=(${scope_list[@]} $scope_tmux)
+    fi
+  fi
+
   local scope=$( for s in ${scope_list[@]}; do echo $s; done | pip_peco scope )
   [ -z "$scope" ] && pecorian_abort
 
@@ -166,6 +173,9 @@ pecorian_cmd() {
       ;;
     $scope_conda)
       pecorian_conda_cmd
+      ;;
+    $scope_tmux)
+      pecorian_tmux_cmd
       ;;
     *)
       exit 1
