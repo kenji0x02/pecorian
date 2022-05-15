@@ -93,7 +93,13 @@ pecorian_cmd() {
   # create command for each scope
   case $scope in
     $scope_history)
-      pecorian_select_history
+      if [ "$SHELL" = '/bin/zsh' ]; then
+        pecorian_select_history_zsh
+      elif [ "$SHELL" = '/bin/bash' ]; then
+        pecorian_select_history_bash
+      else
+        echo "[Error] history command not found."
+      fi
       ;;
     $scope_current_dir)
       pecorian_current_dir_cmd 1
@@ -129,19 +135,32 @@ pecorian_cmd() {
 }
 
 # main
-pecorian() {
+pecorian_zsh() {
   local cmd="`pecorian_cmd`"
   BUFFER="$cmd"
   CURSOR=${#BUFFER}
   zle clear-screen
 }
-zle -N pecorian
-bindkey '\C-j' pecorian
+
+pecorian_bash() {
+  local cmd=`pecorian_cmd`
+  READLINE_LINE="$cmd"
+  READLINE_POINT=${#cmd}
+}
+
+if [ "$SHELL" = '/bin/zsh' ]; then
+  zle -N pecorian_zsh
+  bindkey '\C-j' pecorian_zsh
+elif [ "$SHELL" = '/bin/bash' ]; then
+  bind -x '"\C-j": pecorian_bash'
+else
+  echo "[Error] Shell must be bash or zsh. Current shell: $SHELL"
+fi
 
 # pecoで履歴検索
 # oh-my-zshでエイリアスが設定されているので
 unalias history > /dev/null 2>&1
-pecorian_select_history() {
+pecorian_select_history_zsh() {
     local tac
     if which tac > /dev/null; then
         tac="tac"
@@ -153,9 +172,16 @@ pecorian_select_history() {
     history -in 1 | eval $tac | peco | sed -e 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\} *//'
 }
 
+pecorian_select_history_bash() {
+  export HISTTIMEFORMAT="%Y-%m-%d %R  " # 出力フォーマットの指定
+  # 履歴表示 | 降順 | 履歴通し番号削除 | 重複行削除 | peco | 日時削除
+  # sedの正規表現では空白行を\sでは表現できないので空白行を直接入力する
+  # 重複行削除時に日時の列($1, $2)を除いた後半部分(とりあえず3,4,5,6列目)をキーとして使用
+  echo $( history | tac | sed -e 's/^\s*[0-9]\+\s\+//' | awk '!a[$3 $4 $5 $6]++' | peco --query "$READLINE_LINE" | sed -e 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\} *//')
+}
+
 # current dir
 pecorian_current_dir_cmd() {
-
   # 2) select target
   local target=""
   case $1 in
