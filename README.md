@@ -26,13 +26,13 @@ i.e. if you select **scope**, **target**, and **action** via `peco` according to
 
 ## Example
 
-|Purpose|Scope|Target|Action|Command ex.|
-|:--|:--|:--|:--|:--|
-|cd after selecting repository via `ghq`|Git repository(ghq)|_repository_|cd|cd _repository_|
-|kill running process|Process|_PID_|kill|kill _PID_|
-|show top on a docker container|Docker a container|_container_|top|docker top _ID_|
-|show log on docker-compose|Docker containers/images|container managed by Compose|logs|docker-compose logs -tf|
-|select file and vi|Current dir|_file_|vi|vi _file_|
+| Purpose                                 | Scope                    | Target                       | Action | Command ex.             |
+| :-------------------------------------- | :----------------------- | :--------------------------- | :----- | :---------------------- |
+| cd after selecting repository via `ghq` | Git repository(ghq)      | _repository_                 | cd     | cd _repository_         |
+| kill running process                    | Process                  | _PID_                        | kill   | kill _PID_              |
+| show top on a docker container          | Docker a container       | _container_                  | top    | docker top _ID_         |
+| show log on docker-compose              | Docker containers/images | container managed by Compose | logs   | docker-compose logs -tf |
+| select file and vi                      | Current dir              | _file_                       | vi     | vi _file_               |
 
 Many other commands can be created.
 
@@ -46,6 +46,12 @@ Many other commands can be created.
 - Item list is depends on the context. For example, if docker is not installed, docker scope is not shown in the list.
 
 ## Install
+
+* Install peco. `apt install peco`
+* Copy `.pecorian.sh` to any directory.
+* Run source command. For example.  `source ~/.pecorian.sh`
+
+## Install(old)
 
 ### bash
 
@@ -66,6 +72,11 @@ After installation, `Ctrl + j` to start pecorian.
 ## Requirements
 
 - peco>=0.4.8
+
+## Todo
+
+* Error handling when docker is not installed in WSL2
+* Add operations to Git repository
 
 ## Licence
 
